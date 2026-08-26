@@ -1,2 +1,93 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import type { Restaurant } from '$lib/sheets';
+
+
+    let restaurants = $state<Restaurant[]>([]);
+    let suggestions = $state<Restaurant[]>([]);
+
+    let loading = $state(true);
+    let showAddForm = $state(false);
+    let newRestaurant = $state({ name: '', status: 'to_try' });
+
+  onMount(async () => {
+    await fetchAll();
+    loading = false;
+  });
+
+
+    async function fetchAll() {
+        const [listRes, sugRes] = await Promise.all([
+        fetch('/api/restaurants').then(r => r.json() as Promise<Restaurant[]>),
+        fetch('/api/restaurants/suggest').then(r => r.json() as Promise<Restaurant[]>),
+        ]);
+        restaurants = listRes;
+        suggestions = sugRes;
+    }
+
+      async function markVisited(rowIndex: number) {
+    await fetch(`/api/restaurants/${rowIndex}/visit`, { method: 'PATCH' });
+    await fetchAll();
+  }
+
+
+    async function addRestaurant() {
+    if (!newRestaurant.name.trim()) return;
+    await fetch('/api/restaurants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newRestaurant),
+    });
+    newRestaurant = { name: '', status: 'to_try' };
+    showAddForm = false;
+    await fetchAll();
+  }
+
+   async function toggleExclude(rowIndex: number, currentExclude: boolean) {
+    await fetch(`/api/restaurants/${rowIndex}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ exclude: !currentExclude }),
+    });
+    await fetchAll();
+  }
+
+    function daysSince(dateStr: string | null): number {
+    if (!dateStr) return Infinity;
+    return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  }
+
+    function remiSays(restaurant: Restaurant): string {
+    if (restaurant.exclude) return "Remi won't suggest this";
+    if (restaurant.status === 'to_try') {
+      const days = daysSince(restaurant.dateAdded);
+      if (days <= 14) return `Remi says the word on the street is to try ${restaurant.name}`;
+      if (days <= 35) return `Remi's been sitting on ${restaurant.name} for a while...`;
+      return `Remi's been waiting a while on ${restaurant.name}...`;
+    }
+    const days = daysSince(restaurant.lastVisited);
+    if (days > 56) return `Remi thinks you've been neglecting ${restaurant.name}`;
+    if (days > 28) return `Remi has fond memories of ${restaurant.name}`;
+    return `Remi keeps thinking about ${restaurant.name}`;
+  }
+</script>
+
+<div class="max-w-3xl mx-auto p-4 font-sans">
+    <header class="mb-6 flex items-center justify-between">
+        <h1 class="text-3xl font-bold">
+            Remi
+        </h1>
+        <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onclick={() => showAddForm = !showAddForm}>
+            Add Restaurant
+        </button>
+    </header>
+        {#if loading}
+    <p>Remi is sniffing out suggestions</p>
+    {:else}
+    <p>Remi has found some</p>
+    {/if}
+    </div>
+
+
+
