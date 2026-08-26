@@ -1,7 +1,18 @@
 import { google } from 'googleapis';
 
+export interface Restaurant {
+  rowIndex: number;
+  name: string;
+  notes: string;
+  lastVisited: string | null;
+  timesBeen: number;
+  rating: number | null;
+  status: string;
+  dateAdded: string | null;
+  exclude: boolean;
+}
 
-export async function getSheetsClient(platform: any) {
+export async function getSheetsClient(platform: App.Platform | undefined) {
   const email = platform?.env?.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const key = (platform?.env?.GOOGLE_PRIVATE_KEY ?? process.env.GOOGLE_PRIVATE_KEY)?.replace(/\\n/g, '\n');
   const sheetId = platform?.env?.GOOGLE_SHEET_ID ?? process.env.GOOGLE_SHEET_ID;
@@ -15,7 +26,7 @@ export async function getSheetsClient(platform: any) {
   return { sheets: google.sheets({ version: 'v4', auth }), sheetId };
 }
 
-export function rowsToRestaurants(rows: any) {
+export function rowsToRestaurants(rows: string[][]): Restaurant[] {
   return rows.map((row: string[], index: number) => ({
     rowIndex: index + 2,
     name: row[0] || '',
