@@ -1,27 +1,33 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestHandler } from '@sveltejs/kit';
 import { getSheetsClient, rowsToRestaurants, RANGE } from '$lib/sheets.js';
 
-export async function GET({ platform }: { platform: any }) {
-	const { sheets, sheetId } = await getSheetsClient(platform);
-	const response = await sheets.spreadsheets.values.get({
-		spreadsheetId: sheetId,
-		range: RANGE
-	});
-	return json({ rowsToRestaurants: rowsToRestaurants(response.data.values || []), 
-		catch (error: any) {
-			console.error('Error fetching restaurants:', error);
-			return json({ error: 'Failed to fetch restaurants' }, { status: 500 });
-		}
-	});
-}
-
-
-export async function POST({ request, platform }: { request: Request; platform: any }) {
-	const  { name, notes, status} = await request.json();
-	const { sheets, sheetId } = await getSheetsClient(platform);
-	const today = new Date().toISOString().split('T')[0];
-
+export const GET: RequestHandler = async ({ platform }) => {
 	try {
+		const { sheets, sheetId } = await getSheetsClient(platform);
+		const response = await sheets.spreadsheets.values.get({
+			spreadsheetId: sheetId,
+			range: RANGE
+		});
+		return json(rowsToRestaurants(response.data.values || []));
+	} catch (error) {
+		console.error('Error fetching restaurants:', error);
+		return json({ error: 'Failed to fetch restaurants' }, { status: 500 });
+	}
+};
+
+export const POST: RequestHandler = async ({ request, platform }) => {
+	try {
+		const { name, notes, status } = (await request.json()) as {
+			name?: string;
+			notes?: string;
+			status?: string;
+		};
+		if (typeof name !== 'string' || name.trim() === '') {
+			return json({ error: 'Name is required' }, { status: 400 });
+		}
+
+		const { sheets, sheetId } = await getSheetsClient(platform);
+		const today = new Date().toISOString().split('T')[0];
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
 			range: RANGE,
@@ -29,15 +35,15 @@ export async function POST({ request, platform }: { request: Request; platform: 
 		const nextRow = (response.data.values?.length || 0) + 2;
 		await sheets.spreadsheets.values.update({
 			spreadsheetId: sheetId,
-			range: `Sheet1!A${nextRow}:C${nextRow}`,
+			range: `Sheet1!A${nextRow}:H${nextRow}`,
 			valueInputOption: 'RAW',
 			requestBody: {
-				 values: [[name, notes || '', '', 0, '', status || 'regular', today, 'FALSE']],
+				values: [[name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']],
 			},
 		});
 		return json({ message: 'Restaurant added successfully' });
-	} catch (error: any) {
+	} catch (error) {
 		console.error('Error adding restaurant:', error);
 		return json({ error: 'Failed to add restaurant' }, { status: 500 });
 	}
-}
+};
