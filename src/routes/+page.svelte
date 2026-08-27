@@ -9,6 +9,7 @@
 	let selectedRestaurant: Restaurant | null = $state(null);
 
 	let loading = $state(true);
+	let isAddingRestaurant = $state(false);
 	let showAddForm = $state(false);
 	let newRestaurant = $state({ name: '', status: 'to_try' });
 
@@ -32,19 +33,23 @@
 	}
 
 	async function addRestaurant() {
-		if (!newRestaurant.name.trim()) return;
-		await fetch('/api/restaurants', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(newRestaurant)
-		});
-		newRestaurant = { name: '', status: 'to_try' };
-		showAddForm = false;
-		await fetchAll();
-	}
+		if (!newRestaurant.name.trim() || isAddingRestaurant) return;
 
-	function toggleAddRestaurant() {
-		console.log('Open add new restuarant details');
+		isAddingRestaurant = true;
+
+		try {
+			await fetch('/api/restaurants', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(newRestaurant)
+			});
+
+			newRestaurant = { name: '', status: 'to_try' };
+			showAddForm = false;
+			await fetchAll();
+		} finally {
+			isAddingRestaurant = false;
+		}
 	}
 
 	async function toggleExclude(rowIndex: number, currentExclude: boolean) {
@@ -82,7 +87,7 @@
 	}
 </script>
 
-<div class="mx-auto max-w-3xl p-4 font-sans">
+<div class="mx-auto max-w-3xl p-4 pb-24 font-sans">
 	<header class="mb-6 flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Remi</h1>
 	</header>
@@ -128,8 +133,16 @@
 				<button
 					class="p-4 text-right text-2xl transition-all hover:border-blue-400 hover:shadow-md"
 					onclick={() => addRestaurant()}
+					disabled={isAddingRestaurant}
+					onkeydown={(e) => e.key === 'Enter' && addRestaurant()}
 				>
-					+
+					{#if isAddingRestaurant}
+						<span
+							class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500"
+						></span>
+					{:else}
+						+
+					{/if}
 				</button>
 			</div>
 		</div>
