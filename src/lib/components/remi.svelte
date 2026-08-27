@@ -9,7 +9,7 @@
 <style>
 	.chip-container {
 		position: fixed;
-		bottom: 60px;
+		bottom: 30px;
 		z-index: 1000;
 		right: 15px;
 	}
