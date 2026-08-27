@@ -6,6 +6,8 @@
 	let restaurants = $state<Restaurant[]>([]);
 	let suggestions = $state<Restaurant[]>([]);
 
+	let selectedRestaurant: Restaurant | null = $state(null);
+
 	let loading = $state(true);
 	let showAddForm = $state(false);
 	let newRestaurant = $state({ name: '', status: 'to_try' });
@@ -41,6 +43,10 @@
 		await fetchAll();
 	}
 
+	function toggleAddRestaurant() {
+		console.log('Open add new restuarant details');
+	}
+
 	async function toggleExclude(rowIndex: number, currentExclude: boolean) {
 		await fetch(`/api/restaurants/${rowIndex}`, {
 			method: 'PUT',
@@ -48,6 +54,12 @@
 			body: JSON.stringify({ exclude: !currentExclude })
 		});
 		await fetchAll();
+	}
+
+	function selectRestaurant(restaurant: Restaurant) {
+		selectedRestaurant = restaurant;
+		// Later: open a modal, navigate to detail page, etc.
+		console.log('Selected:', restaurant.name);
 	}
 
 	function daysSince(dateStr: string | null): number {
@@ -77,7 +89,50 @@
 	{#if loading}
 		<p>Remi is checking the books</p>
 	{:else}
-		<p>Remi is done</p>
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+			{#each restaurants as restaurant (restaurant.id)}
+				<button
+					class="rounded-lg border-2 p-4 text-left transition-all hover:border-blue-400 hover:shadow-md
+            {restaurant.exclude
+						? 'border-gray-200 bg-gray-50 opacity-40'
+						: daysSince(restaurant.lastVisited) > 42
+							? 'border-amber-300 bg-amber-50'
+							: 'border-gray-300 bg-white'}"
+					onclick={() => selectRestaurant(restaurant)}
+				>
+					<div class="mb-2 flex items-center gap-2">
+						<span class="text-lg font-semibold">{restaurant.name}</span>
+					</div>
+					<div class="flex items-center gap-3 text-xs text-gray-400">
+						<span>{restaurant.timesBeen} visits</span>
+						{#if restaurant.rating}
+							<span>{restaurant.rating}/5</span>
+						{/if}
+						{#if restaurant.lastVisited}
+							<span>{daysSince(restaurant.lastVisited)}d ago</span>
+						{:else}
+							<span>Remi hasnt been here</span>
+						{/if}
+						{#if restaurant.exclude}
+							<span class="text-red-400">No Good</span>
+						{/if}
+					</div>
+				</button>
+			{/each}
+			<div class="flex items-center justify-between rounded-lg border-2 border-gray-200">
+				<input
+					class="flex-1 border-transparent"
+					placeholder="Add new Restaurant"
+					bind:value={newRestaurant.name}
+				/>
+				<button
+					class="p-4 text-right text-2xl transition-all hover:border-blue-400 hover:shadow-md"
+					onclick={() => addRestaurant()}
+				>
+					+
+				</button>
+			</div>
+		</div>
 	{/if}
 	<Remi></Remi>
 </div>
