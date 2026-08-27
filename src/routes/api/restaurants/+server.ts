@@ -30,16 +30,16 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const today = new Date().toISOString().split('T')[0];
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
-			range: RANGE,
+			range: RANGE
 		});
 		const nextRow = (response.data.values?.length || 0) + 2;
 		await sheets.spreadsheets.values.update({
 			spreadsheetId: sheetId,
-			range: `Sheet1!A${nextRow}:H${nextRow}`,
+			range: `Restaurants!A${nextRow}:H${nextRow}`,
 			valueInputOption: 'RAW',
 			requestBody: {
-				values: [[name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']],
-			},
+				values: [[name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']]
+			}
 		});
 		return json({ message: 'Restaurant added successfully' });
 	} catch (error) {
