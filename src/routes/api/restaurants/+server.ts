@@ -35,10 +35,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const nextRow = (response.data.values?.length || 0) + 2;
 		await sheets.spreadsheets.values.update({
 			spreadsheetId: sheetId,
-			range: `Restaurants!A${nextRow}:H${nextRow}`,
+			range: `Restaurants!A${nextRow}:I${nextRow}`,
 			valueInputOption: 'RAW',
 			requestBody: {
-				values: [[name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']]
+				values: [
+					[crypto.randomUUID(), name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']
+				]
 			}
 		});
 		return json({ message: 'Restaurant added successfully' });

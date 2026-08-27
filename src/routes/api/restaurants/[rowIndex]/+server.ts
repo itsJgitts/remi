@@ -16,13 +16,13 @@ export const PUT: RequestHandler = async ({ params, request, platform }) => {
 
 	try {
 		const updates = [];
-		if (notes !== undefined) updates.push({ range: `Restaurants!B${rowIndex}`, values: [[notes]] });
+		if (notes !== undefined) updates.push({ range: `Restaurants!C${rowIndex}`, values: [[notes]] });
 		if (rating !== undefined)
-			updates.push({ range: `Restaurants!E${rowIndex}`, values: [[rating]] });
+			updates.push({ range: `Restaurants!F${rowIndex}`, values: [[rating]] });
 		if (status !== undefined)
-			updates.push({ range: `Restaurants!F${rowIndex}`, values: [[status]] });
+			updates.push({ range: `Restaurants!G${rowIndex}`, values: [[status]] });
 		if (exclude !== undefined) {
-			updates.push({ range: `Restaurants!H${rowIndex}`, values: [[exclude ? 'TRUE' : 'FALSE']] });
+			updates.push({ range: `Restaurants!I${rowIndex}`, values: [[exclude ? 'TRUE' : 'FALSE']] });
 		}
 
 		if (updates.length > 0) {

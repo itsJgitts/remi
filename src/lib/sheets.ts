@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 
 export interface Restaurant {
 	rowIndex: number;
+	id: string;
 	name: string;
 	notes: string;
 	lastVisited: string | null;
@@ -33,15 +34,25 @@ export async function getSheetsClient(platform: App.Platform | undefined) {
 export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 	return rows.map((row: string[], index: number) => ({
 		rowIndex: index + 2,
-		name: row[0] || '',
-		notes: row[1] || '',
-		lastVisited: row[2] || null,
-		timesBeen: parseInt(row[3]) || 0,
-		rating: row[4] ? parseInt(row[4]) : null,
-		status: row[5] || 'visited',
-		dateAdded: row[6] || null,
-		exclude: row[7]?.toUpperCase() === 'TRUE'
+		id: row[0] || '',
+		name: row[1] || '',
+		notes: row[2] || '',
+		lastVisited: row[3] || null,
+		timesBeen: parseInt(row[4]) || 0,
+		rating: row[5] ? parseInt(row[5]) : null,
+		status: row[6] || 'visited',
+		dateAdded: row[7] || null,
+		exclude: row[8]?.toUpperCase() === 'TRUE'
 	}));
 }
 
-export const RANGE = 'Restaurants!A2:H';
+export const RANGE = 'Restaurants!A2:I';
+
+export interface Visit {
+	id: string;
+	restaurantId: string;
+	dateVisited: string;
+	visitors: string;
+}
+
+export const VISITS_RANGE = 'Visits!A:D';
