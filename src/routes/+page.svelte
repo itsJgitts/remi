@@ -102,7 +102,7 @@
 						? 'border-gray-200 bg-gray-50 opacity-40'
 						: daysSince(restaurant.lastVisited) > 42
 							? 'border-amber-300 bg-amber-50'
-							: 'border-gray-300 bg-white'}"
+							: 'border-transparent bg-violet-200 text-violet-700'}"
 					onclick={() => selectRestaurant(restaurant)}
 				>
 					<div class="mb-2 flex items-center gap-2">
