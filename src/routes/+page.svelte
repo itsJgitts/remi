@@ -97,18 +97,13 @@
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
 			{#each restaurants as restaurant (restaurant.id)}
 				<button
-					class="rounded-lg border-2 p-4 text-left transition-all hover:border-blue-400 hover:shadow-md
-            {restaurant.exclude
-						? 'border-gray-200 bg-gray-50 opacity-40'
-						: daysSince(restaurant.lastVisited) > 42
-							? 'border-amber-300 bg-amber-50'
-							: 'border-transparent bg-violet-200 text-violet-700'}"
+					class="primary-card hover:primary-card-hover"
 					onclick={() => selectRestaurant(restaurant)}
 				>
 					<div class="mb-2 flex items-center gap-2">
 						<span class="text-lg font-semibold">{restaurant.name}</span>
 					</div>
-					<div class="flex items-center gap-3 text-xs text-gray-400">
+					<div class="flex items-center gap-3 text-xs text-violet-700">
 						<span>{restaurant.timesBeen} visits</span>
 						{#if restaurant.rating}
 							<span>{restaurant.rating}/5</span>
@@ -124,7 +119,7 @@
 					</div>
 				</button>
 			{/each}
-			<div class="flex items-center justify-between rounded-lg border-2 border-gray-200">
+			<div class="primary-card hover:primary-card-hover">
 				<input
 					class="flex-1 border-transparent"
 					placeholder="Add new Restaurant"
@@ -149,3 +144,24 @@
 	{/if}
 	<Remi></Remi>
 </div>
+
+<style>
+	.primary-card {
+		color: rgb(109 40 217);
+		border-radius: 0.5rem;
+		border-width: 2px;
+		border-style: solid;
+		border-color: transparent;
+		background-color: rgb(221 214 254);
+		padding: 1rem;
+		text-align: left;
+		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.primary-card-hover {
+		border-color: rgb(96 165 250);
+		box-shadow:
+			0 4px 6px -1px rgb(0 0 0 / 0.1),
+			0 2px 4px -2px rgb(0 0 0 / 0.1);
+	}
+</style>
