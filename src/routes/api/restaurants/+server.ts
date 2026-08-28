@@ -28,18 +28,24 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		const { sheets, sheetId } = await getSheetsClient(platform);
 		const today = new Date().toISOString().split('T')[0];
-		const response = await sheets.spreadsheets.values.get({
+		await sheets.spreadsheets.values.append({
 			spreadsheetId: sheetId,
-			range: RANGE
-		});
-		const nextRow = (response.data.values?.length || 0) + 2;
-		await sheets.spreadsheets.values.update({
-			spreadsheetId: sheetId,
-			range: `Restaurants!A${nextRow}:I${nextRow}`,
+			range: RANGE,
 			valueInputOption: 'RAW',
+			insertDataOption: 'INSERT_ROWS',
 			requestBody: {
 				values: [
-					[crypto.randomUUID(), name.trim(), notes ?? '', '', 0, '', status || 'visited', today, 'FALSE']
+					[
+						crypto.randomUUID(),
+						name.trim(),
+						notes ?? '',
+						'',
+						0,
+						'',
+						status || 'visited',
+						today,
+						'FALSE'
+					]
 				]
 			}
 		});
