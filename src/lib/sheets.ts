@@ -13,6 +13,14 @@ export interface Restaurant {
 	exclude: boolean;
 }
 
+export interface Visit {
+	id: string;
+	restaurantId: string;
+	dateVisited: string;
+	visitors: string | null;
+	notes: string;
+}
+
 export async function getSheetsClient(platform: App.Platform | undefined) {
 	const email =
 		platform?.env?.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -48,11 +56,14 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 
 export const RANGE = 'Restaurants!A2:I';
 
-export interface Visit {
-	id: string;
-	restaurantId: string;
-	dateVisited: string;
-	visitors: string;
+export function rowsToVisits(rows: string[][]): Visit[] {
+	return rows.map((row: string[]) => ({
+		id: row[0] || '',
+		restaurantId: row[1] || '',
+		dateVisited: row[2] || '',
+		visitors: row[3] || null,
+		notes: row[4] || ''
+	}));
 }
 
-export const VISITS_RANGE = 'Visits!A:D';
+export const VISITS_RANGE = 'Visits!A:E';

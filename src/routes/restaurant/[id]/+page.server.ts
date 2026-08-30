@@ -4,12 +4,16 @@ import { getSheetsClient, RANGE, rowsToRestaurants } from '$lib/sheets';
 
 export const load: PageServerLoad = async ({ params, platform }) => {
 	const { sheets, sheetId } = await getSheetsClient(platform);
-	const response = await sheets.spreadsheets.values.get({
+	const restaurantResponse = await sheets.spreadsheets.values.get({
+		spreadsheetId: sheetId,
+		range: RANGE
+	});
+	const visitsResponse = await sheets.spreadsheets.values.get({
 		spreadsheetId: sheetId,
 		range: RANGE
 	});
 
-	const restaurant = rowsToRestaurants(response.data.values || []).find(
+	const restaurant = rowsToRestaurants(restaurantResponse.data.values || []).find(
 		(restaurant) => restaurant.id === params.id
 	);
 
