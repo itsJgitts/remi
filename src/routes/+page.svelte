@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { Restaurant } from '$lib/sheets';
 	import Remi from '$lib/components/remi.svelte';
+    import { goto } from '$app/navigation';
 
 	let restaurants = $state<Restaurant[]>([]);
 	let suggestions = $state<Restaurant[]>([]);
@@ -27,11 +28,6 @@
 		suggestions = sugRes;
 	}
 
-	async function markVisited(rowIndex: number) {
-		await fetch(`/api/restaurants/${rowIndex}/visit`, { method: 'PATCH' });
-		await fetchAll();
-	}
-
 	async function addRestaurant() {
 		if (!newRestaurant.name.trim() || isAddingRestaurant) return;
 
@@ -52,19 +48,13 @@
 		}
 	}
 
-	async function toggleExclude(rowIndex: number, currentExclude: boolean) {
-		await fetch(`/api/restaurants/${rowIndex}`, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ exclude: !currentExclude })
-		});
-		await fetchAll();
-	}
 
-	function selectRestaurant(restaurant: Restaurant) {
+
+	function goToRestaurant(restaurant: Restaurant) {
 		selectedRestaurant = restaurant;
 		// Later: open a modal, navigate to detail page, etc.
-		console.log('Selected:', restaurant.name);
+		console.log('Selected:', restaurant.id);
+        goto(`/restaurant/${restaurant.id}`);
 	}
 
 	function daysSince(dateStr: string | null): number {
@@ -98,7 +88,7 @@
 			{#each restaurants as restaurant (restaurant.id)}
 				<button
 					class="primary-card hover:primary-card-hover"
-					onclick={() => selectRestaurant(restaurant)}
+					onclick={() => goToRestaurant(restaurant)}
 				>
 					<div class="mb-2 flex items-center gap-2">
 						<span class="text-lg font-semibold">{restaurant.name}</span>
@@ -121,7 +111,7 @@
 			{/each}
 			<div class="primary-card hover:primary-card-hover">
 				<input
-					class="flex-1 border-transparent"
+					class="w-95 flex-1 border-transparent bg-transparent text-lg font-semibold focus:border-transaparent focus:outline-none focus:ring-0"
 					placeholder="Add new Restaurant"
 					bind:value={newRestaurant.name}
 				/>
@@ -158,10 +148,4 @@
 		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
-	.primary-card-hover {
-		border-color: rgb(96 165 250);
-		box-shadow:
-			0 4px 6px -1px rgb(0 0 0 / 0.1),
-			0 2px 4px -2px rgb(0 0 0 / 0.1);
-	}
 </style>
