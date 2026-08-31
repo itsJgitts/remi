@@ -1,10 +1,14 @@
 import { google } from 'googleapis';
 
+let cachedSheetsClient: {
+	sheets: ReturnType<typeof google.sheets>;
+	sheetId: string | undefined;
+} | null = null;
+
 export interface Restaurant {
 	rowIndex: number;
 	id: string;
 	name: string;
-	notes: string;
 	lastVisited: string | null;
 	timesBeen: number;
 	rating: number | null;
@@ -17,11 +21,13 @@ export interface Visit {
 	id: string;
 	restaurantId: string;
 	dateVisited: string;
-	visitors: string | null;
-	notes: string;
+	notes: string | null;
 }
 
 export async function getSheetsClient(platform: App.Platform | undefined) {
+	// PERF: Reuse the authenticated client while this server instance remains warm.
+	if (cachedSheetsClient) return cachedSheetsClient;
+
 	const email =
 		platform?.env?.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 	const key = (platform?.env?.GOOGLE_PRIVATE_KEY ?? process.env.GOOGLE_PRIVATE_KEY)?.replace(
@@ -36,7 +42,8 @@ export async function getSheetsClient(platform: App.Platform | undefined) {
 		scopes: ['https://www.googleapis.com/auth/spreadsheets']
 	});
 
-	return { sheets: google.sheets({ version: 'v4', auth }), sheetId };
+	cachedSheetsClient = { sheets: google.sheets({ version: 'v4', auth }), sheetId };
+	return cachedSheetsClient;
 }
 
 export function rowsToRestaurants(rows: string[][]): Restaurant[] {
@@ -44,26 +51,25 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 		rowIndex: index + 2,
 		id: row[0] || '',
 		name: row[1] || '',
-		notes: row[2] || '',
-		lastVisited: row[3] || null,
-		timesBeen: parseInt(row[4]) || 0,
-		rating: row[5] ? parseInt(row[5]) : null,
-		status: row[6] || 'visited',
-		dateAdded: row[7] || null,
-		exclude: row[8]?.toUpperCase() === 'TRUE'
+		lastVisited: row[2] || null,
+		timesBeen: parseInt(row[3]) || 0,
+		rating: row[4] ? parseInt(row[4]) : null,
+		status: row[5] || 'visited',
+		dateAdded: row[6] || null,
+		exclude: row[7]?.toUpperCase() === 'TRUE'
 	}));
 }
 
-export const RANGE = 'Restaurants!A2:I';
+// PERF: Only request columns that belong to the current sheet schema.
+export const RANGE = 'Restaurants!A2:H';
 
 export function rowsToVisits(rows: string[][]): Visit[] {
 	return rows.map((row: string[]) => ({
 		id: row[0] || '',
 		restaurantId: row[1] || '',
 		dateVisited: row[2] || '',
-		visitors: row[3] || null,
-		notes: row[4] || ''
+		notes: row[3] || null
 	}));
 }
 
-export const VISITS_RANGE = 'Visits!A:E';
+export const VISITS_RANGE = 'Visits!A:D';
