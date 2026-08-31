@@ -8,47 +8,52 @@ export const PATCH: RequestHandler = async ({ params, request, platform }) => {
 	}
 	const today = new Date().toISOString().split('T')[0];
 
-	let visitors = '';
+	let notes = '';
 	try {
-		const body = (await request.json()) as { visitors?: string[] | string };
-		if (Array.isArray(body?.visitors)) visitors = body.visitors.join(', ');
-		else if (typeof body?.visitors === 'string') visitors = body.visitors;
+		const body = (await request.json()) as { notes?: unknown };
+		if (typeof body.notes === 'string') notes = body.notes.trim();
 	} catch {
-		// no body supplied; visitors stays empty
+		// Notes are optional until the visit form is added.
 	}
-
 	const { sheets, sheetId } = await getSheetsClient(platform);
 
 	try {
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: sheetId,
-			range: `Restaurants!A${rowIndex}:G${rowIndex}`
+			range: `Restaurants!A${rowIndex}:H${rowIndex}`
 		});
-		const restaurantId = response.data.values?.[0]?.[0] ?? '';
-		const currentCount = parseInt(response.data.values?.[0]?.[4] ?? '0') || 0;
-		const currentStatus = response.data.values?.[0]?.[6] ?? 'visited';
+		const restaurant = response.data.values?.[0];
+		if (!restaurant?.[0]) {
+			return json({ error: 'Restaurant not found' }, { status: 404 });
+		}
 
-		await sheets.spreadsheets.values.batchUpdate({
-			spreadsheetId: sheetId,
-			requestBody: {
+		const restaurantId = restaurant[0];
+		const currentCount = parseInt(restaurant[3] ?? '0') || 0;
+		const currentStatus = restaurant[5] ?? 'visited';
+
+		// PERF: These writes are independent after the read, so run them concurrently.
+		await Promise.all([
+			sheets.spreadsheets.values.batchUpdate({
+				spreadsheetId: sheetId,
+				requestBody: {
+					valueInputOption: 'RAW',
+					data: [
+						{ range: `Restaurants!C${rowIndex}`, values: [[today]] },
+						{ range: `Restaurants!D${rowIndex}`, values: [[currentCount + 1]] },
+						{ range: `Restaurants!F${rowIndex}`, values: [['visited']] }
+					]
+				}
+			}),
+			sheets.spreadsheets.values.append({
+				spreadsheetId: sheetId,
+				range: VISITS_RANGE,
 				valueInputOption: 'RAW',
-				data: [
-					{ range: `Restaurants!D${rowIndex}`, values: [[today]] },
-					{ range: `Restaurants!E${rowIndex}`, values: [[currentCount + 1]] },
-					{ range: `Restaurants!G${rowIndex}`, values: [['visited']] }
-				]
-			}
-		});
-
-		await sheets.spreadsheets.values.append({
-			spreadsheetId: sheetId,
-			range: VISITS_RANGE,
-			valueInputOption: 'RAW',
-			insertDataOption: 'INSERT_ROWS',
-			requestBody: {
-				values: [[crypto.randomUUID(), restaurantId, today, visitors]]
-			}
-		});
+				insertDataOption: 'INSERT_ROWS',
+				requestBody: {
+					values: [[crypto.randomUUID(), restaurantId, today, notes]]
+				}
+			})
+		]);
 
 		return json({
 			success: true,

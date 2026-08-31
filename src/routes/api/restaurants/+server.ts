@@ -17,9 +17,8 @@ export const GET: RequestHandler = async ({ platform }) => {
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
-		const { name, notes, status } = (await request.json()) as {
+		const { name, status } = (await request.json()) as {
 			name?: string;
-			notes?: string;
 			status?: string;
 		};
 		if (typeof name !== 'string' || name.trim() === '') {
@@ -38,7 +37,6 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					[
 						crypto.randomUUID(),
 						name.trim(),
-						notes ?? '',
 						'',
 						0,
 						'',

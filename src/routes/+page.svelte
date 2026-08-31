@@ -1,32 +1,16 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { Restaurant } from '$lib/sheets';
 	import Remi from '$lib/components/remi.svelte';
-    import { goto } from '$app/navigation';
+	import type { PageProps } from './$types';
 
-	let restaurants = $state<Restaurant[]>([]);
-	let suggestions = $state<Restaurant[]>([]);
+	let { data }: PageProps = $props();
+	// PERF: Use the SSR result instead of making duplicate list and suggestion requests on mount.
+	let restaurants = $derived(data.restaurants);
 
-	let selectedRestaurant: Restaurant | null = $state(null);
-
-	let loading = $state(true);
 	let isAddingRestaurant = $state(false);
 	let showAddForm = $state(false);
 	let newRestaurant = $state({ name: '', status: 'to_try' });
-
-	onMount(async () => {
-		await fetchAll();
-		loading = false;
-	});
-
-	async function fetchAll() {
-		const [listRes, sugRes] = await Promise.all([
-			fetch('/api/restaurants').then((r) => r.json() as Promise<Restaurant[]>),
-			fetch('/api/restaurants/suggest').then((r) => r.json() as Promise<Restaurant[]>)
-		]);
-		restaurants = listRes;
-		suggestions = sugRes;
-	}
 
 	async function addRestaurant() {
 		if (!newRestaurant.name.trim() || isAddingRestaurant) return;
@@ -34,27 +18,23 @@
 		isAddingRestaurant = true;
 
 		try {
-			await fetch('/api/restaurants', {
+			const response = await fetch('/api/restaurants', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(newRestaurant)
 			});
+			if (!response.ok) throw new Error('Failed to add restaurant');
 
 			newRestaurant = { name: '', status: 'to_try' };
 			showAddForm = false;
-			await fetchAll();
+			// PERF: Refresh one server load rather than calling two APIs that read the same sheet.
+			await invalidateAll();
 		} finally {
 			isAddingRestaurant = false;
 		}
 	}
-
-
-
 	function goToRestaurant(restaurant: Restaurant) {
-		selectedRestaurant = restaurant;
-		// Later: open a modal, navigate to detail page, etc.
-		console.log('Selected:', restaurant.id);
-        goto(`/restaurant/${restaurant.id}`);
+		goto(`/restaurant/${restaurant.id}`);
 	}
 
 	function daysSince(dateStr: string | null): number {
@@ -81,57 +61,53 @@
 	<header class="mb-6 flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Remi</h1>
 	</header>
-	{#if loading}
-		<p>Remi is checking the books</p>
-	{:else}
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-			{#each restaurants as restaurant (restaurant.id)}
-				<button
-					class="primary-card hover:primary-card-hover"
-					onclick={() => goToRestaurant(restaurant)}
-				>
-					<div class="mb-2 flex items-center gap-2">
-						<span class="text-lg font-semibold">{restaurant.name}</span>
-					</div>
-					<div class="flex items-center gap-3 text-xs text-violet-700">
-						<span>{restaurant.timesBeen} visits</span>
-						{#if restaurant.rating}
-							<span>{restaurant.rating}/5</span>
-						{/if}
-						{#if restaurant.lastVisited}
-							<span>{daysSince(restaurant.lastVisited)}d ago</span>
-						{:else}
-							<span>Remi hasnt been here</span>
-						{/if}
-						{#if restaurant.exclude}
-							<span class="text-red-400">No Good</span>
-						{/if}
-					</div>
-				</button>
-			{/each}
-			<div class="primary-card hover:primary-card-hover">
-				<input
-					class="w-95 flex-1 border-transparent bg-transparent text-lg font-semibold focus:border-transaparent focus:outline-none focus:ring-0"
-					placeholder="Add new Restaurant"
-					bind:value={newRestaurant.name}
-				/>
-				<button
-					class="p-4 text-right text-2xl transition-all hover:border-blue-400 hover:shadow-md"
-					onclick={() => addRestaurant()}
-					disabled={isAddingRestaurant}
-					onkeydown={(e) => e.key === 'Enter' && addRestaurant()}
-				>
-					{#if isAddingRestaurant}
-						<span
-							class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500"
-						></span>
-					{:else}
-						+
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+		{#each restaurants as restaurant (restaurant.id)}
+			<button
+				class="primary-card hover:primary-card-hover"
+				onclick={() => goToRestaurant(restaurant)}
+			>
+				<div class="mb-2 flex items-center gap-2">
+					<span class="text-lg font-semibold">{restaurant.name}</span>
+				</div>
+				<div class="flex items-center gap-3 text-xs text-violet-700">
+					<span>{restaurant.timesBeen} visits</span>
+					{#if restaurant.rating}
+						<span>{restaurant.rating}/5</span>
 					{/if}
-				</button>
-			</div>
+					{#if restaurant.lastVisited}
+						<span>{daysSince(restaurant.lastVisited)}d ago</span>
+					{:else}
+						<span>Remi hasnt been here</span>
+					{/if}
+					{#if restaurant.exclude}
+						<span class="text-red-400">No Good</span>
+					{/if}
+				</div>
+			</button>
+		{/each}
+		<div class="primary-card hover:primary-card-hover">
+			<input
+				class="focus:border-transaparent w-95 flex-1 border-transparent bg-transparent text-lg font-semibold focus:ring-0 focus:outline-none"
+				placeholder="Add new Restaurant"
+				bind:value={newRestaurant.name}
+			/>
+			<button
+				class="p-4 text-right text-2xl transition-all hover:border-blue-400 hover:shadow-md"
+				onclick={() => addRestaurant()}
+				disabled={isAddingRestaurant}
+				onkeydown={(e) => e.key === 'Enter' && addRestaurant()}
+			>
+				{#if isAddingRestaurant}
+					<span
+						class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500"
+					></span>
+				{:else}
+					+
+				{/if}
+			</button>
 		</div>
-	{/if}
+	</div>
 	<Remi></Remi>
 </div>
 
@@ -147,5 +123,4 @@
 		text-align: left;
 		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	}
-
 </style>

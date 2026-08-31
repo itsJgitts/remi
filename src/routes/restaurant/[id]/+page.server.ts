@@ -8,10 +8,6 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 		spreadsheetId: sheetId,
 		range: RANGE
 	});
-	const visitsResponse = await sheets.spreadsheets.values.get({
-		spreadsheetId: sheetId,
-		range: RANGE
-	});
 
 	const restaurant = rowsToRestaurants(restaurantResponse.data.values || []).find(
 		(restaurant) => restaurant.id === params.id
