@@ -31,7 +31,6 @@ export const PATCH: RequestHandler = async ({ params, request, platform }) => {
 		const currentCount = parseInt(restaurant[3] ?? '0') || 0;
 		const currentStatus = restaurant[5] ?? 'visited';
 
-		// PERF: These writes are independent after the read, so run them concurrently.
 		await Promise.all([
 			sheets.spreadsheets.values.batchUpdate({
 				spreadsheetId: sheetId,
