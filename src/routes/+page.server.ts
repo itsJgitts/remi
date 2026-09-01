@@ -8,6 +8,5 @@ export const load: PageServerLoad = async ({ platform }) => {
 		range: RANGE
 	});
 
-	// PERF: Load during SSR so the browser does not wait for hydration before fetching restaurants.
 	return { restaurants: rowsToRestaurants(response.data.values || []) };
 };
