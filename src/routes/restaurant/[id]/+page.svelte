@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import LogVisitModal from '$lib/components/logVisitModal.svelte';
 
 	let { data }: PageProps = $props();
 	let restaurant = $derived(data.restaurant);
 	let updating = $state(false);
+	let visitModalOpen = $state(false);
 
 	async function toggleExclude() {
 		updating = true;
@@ -15,32 +17,39 @@
 		updating = false;
 
 		if (!response.ok) throw new Error('Failed to update restaurant');
-		// PERF: We know the new value, so avoid re-reading the full sheet with invalidateAll().
 		restaurant = { ...restaurant, exclude: !restaurant.exclude };
 	}
 
-	async function markVisited() {
+	async function markVisited(notes: string) {
 		updating = true;
-		const response = await fetch(`/api/restaurants/${restaurant.rowIndex}/visit`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ notes: '' })
-		});
-		updating = false;
+		try {
+			const response = await fetch(`/api/restaurants/${restaurant.rowIndex}/visit`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ notes })
+			});
 
-		if (!response.ok) throw new Error('Failed to mark restaurant as visited');
-		const result = (await response.json()) as {
-			lastVisited: string;
-			timesBeen: number;
-			status: string;
-		};
-		// PERF: Apply the response locally instead of triggering another Google Sheets read.
-		restaurant = {
-			...restaurant,
-			lastVisited: result.lastVisited,
-			timesBeen: result.timesBeen,
-			status: result.status
-		};
+			if (!response.ok) {
+				throw new Error('Failed to mark restaurant as visited');
+			}
+
+			const result = (await response.json()) as {
+				lastVisited: string;
+				timesBeen: number;
+				status: string;
+			};
+
+			restaurant = {
+				...restaurant,
+				lastVisited: result.lastVisited,
+				timesBeen: result.timesBeen,
+				status: result.status
+			};
+
+			visitModalOpen = false;
+		} finally {
+			updating = false;
+		}
 	}
 </script>
 
@@ -59,11 +68,21 @@
 	</div>
 
 	<div class="mt-6 flex gap-3">
-		<button class="rounded bg-violet-200 px-4 py-2" onclick={markVisited} disabled={updating}>
+		<button
+			class="rounded bg-violet-200 px-4 py-2"
+			onclick={() => (visitModalOpen = true)}
+			disabled={updating}
+		>
 			Mark visited
 		</button>
 		<button class="rounded bg-stone-200 px-4 py-2" onclick={toggleExclude} disabled={updating}>
 			{restaurant.exclude ? 'Include in suggestions' : 'Exclude from suggestions'}
 		</button>
+		<LogVisitModal
+			open={visitModalOpen}
+			submitting={updating}
+			onclose={() => (visitModalOpen = false)}
+			onsubmit={markVisited}
+		/>
 	</div>
 </main>
