@@ -9,7 +9,7 @@
 	let restaurants = $derived(data.restaurants);
 
 	let isAddingRestaurant = $state(false);
-	let showAddForm = $state(false);
+
 	let newRestaurant = $state({ name: '', status: 'to_try' });
 
 	async function addRestaurant() {
@@ -26,8 +26,6 @@
 			if (!response.ok) throw new Error('Failed to add restaurant');
 
 			newRestaurant = { name: '', status: 'to_try' };
-			showAddForm = false;
-			// PERF: Refresh one server load rather than calling two APIs that read the same sheet.
 			await invalidateAll();
 		} finally {
 			isAddingRestaurant = false;
@@ -108,7 +106,7 @@
 			</button>
 		</div>
 	</div>
-	<Remi></Remi>
+	<Remi {restaurants} />
 </div>
 
 <style>
