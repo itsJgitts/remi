@@ -25,7 +25,6 @@ export interface Visit {
 }
 
 export async function getSheetsClient(platform: App.Platform | undefined) {
-	// PERF: Reuse the authenticated client while this server instance remains warm.
 	if (cachedSheetsClient) return cachedSheetsClient;
 
 	const email =
@@ -60,7 +59,6 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 	}));
 }
 
-// PERF: Only request columns that belong to the current sheet schema.
 export const RANGE = 'Restaurants!A2:H';
 
 export function rowsToVisits(rows: string[][]): Visit[] {
