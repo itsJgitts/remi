@@ -3,24 +3,59 @@
 		open: boolean;
 		submitting?: boolean;
 		onclose: () => void;
-		onsubmit: (notes: string) => Promise<void>;
+		onsubmit: (items: VisitItemDraft[]) => Promise<void>;
+	};
+
+	type VisitItemDraft = {
+		id: string;
+		name: string;
+		review: string;
+		orderAgain: boolean;
+	};
+
+	type VisitItem = {
+		id: string;
+		name: string;
+		review: string;
+		orderAgain: boolean;
 	};
 
 	let { open, submitting = false, onclose, onsubmit }: Props = $props();
-	let notes = $state('');
+
 	let error = $state('');
 
 	async function submitVisit(event: SubmitEvent) {
 		event.preventDefault();
 		error = '';
+		const completedItems = items.filter((item) => item.name.trim());
+
+		if (completedItems.length === 0) {
+			error = 'Add at least one item.';
+			return;
+		}
 
 		try {
-			await onsubmit(notes);
-			notes = '';
+			await onsubmit(completedItems);
+			items = [createItem()];
 		} catch {
 			error = 'Could not save this visit. Please try again.';
 		}
 	}
+
+	function createItem(): VisitItem {
+		return {
+			id: crypto.randomUUID(),
+			name: '',
+			review: '',
+			orderAgain: true
+		};
+	}
+
+	function addItem() {
+		items.push(createItem());
+	}
+
+	let items = $state<VisitItem[]>([createItem()]);
 </script>
 
 {#if open}
@@ -40,14 +75,40 @@
 			<h2 id="visit-modal-title" class="text-xl font-semibold">Log visit</h2>
 
 			<form class="mt-4" onsubmit={submitVisit}>
-				<label for="visit-notes" class="block text-sm font-medium"> Notes </label>
+				<label for="review" class="block text-sm font-medium"> Review </label>
+				{#each items as item, index (item.id)}
+					<div class="mt-2 flex w-full items-center gap-3">
+						<input
+							id={`item-name-${index}`}
+							class="min-w-0 flex-1 rounded border border-gray-300 p-3"
+							placeholder={`Item ${index + 1}`}
+							bind:value={item.name}
+						/>
 
-				<textarea
-					id="visit-notes"
-					class="mt-2 min-h-28 w-full rounded border border-gray-300 p-3"
-					placeholder="Add visit notes"
-					bind:value={notes}></textarea>
+						<input
+							id={`item-review-${index}`}
+							class="min-w-0 flex-1 rounded border border-gray-300 p-3"
+							placeholder="Item review"
+							bind:value={item.review}
+						/>
 
+						<label
+							for={`order-again-${index}`}
+							class="flex shrink-0 items-center gap-2 text-sm font-medium"
+						>
+							<input id={`order-again-${index}`} type="checkbox" bind:checked={item.orderAgain} />
+
+							Order again
+						</label>
+					</div>
+				{/each}
+				<button
+					type="button"
+					class="mt-3 rounded bg-violet-100 px-3 py-2 text-sm text-violet-700"
+					onclick={addItem}
+				>
+					+ Add another item
+				</button>
 				{#if error}
 					<p class="mt-2 text-sm text-red-600">{error}</p>
 				{/if}
