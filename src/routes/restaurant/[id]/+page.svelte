@@ -1,11 +1,16 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import LogVisitModal from '$lib/components/logVisitModal.svelte';
+	import type { VisitItemInput } from '$lib/sheets';
 
 	let { data }: PageProps = $props();
 	let restaurant = $derived(data.restaurant);
 	let updating = $state(false);
 	let visitModalOpen = $state(false);
+
+	type VisitItemDraft = VisitItemInput & {
+		id: string;
+	};
 
 	async function toggleExclude() {
 		updating = true;
@@ -20,15 +25,14 @@
 		restaurant = { ...restaurant, exclude: !restaurant.exclude };
 	}
 
-	async function markVisited(notes: string) {
+	async function markVisited(items: VisitItemDraft[]) {
 		updating = true;
 		try {
 			const response = await fetch(`/api/restaurants/${restaurant.rowIndex}/visit`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ notes })
+				body: JSON.stringify({ items })
 			});
-
 			if (!response.ok) {
 				throw new Error('Failed to mark restaurant as visited');
 			}
