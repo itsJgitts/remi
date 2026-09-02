@@ -5,6 +5,13 @@ let cachedSheetsClient: {
 	sheetId: string | undefined;
 } | null = null;
 
+// PERF: Cache numeric worksheet IDs so batch writes only need a metadata lookup on the first request.
+let cachedWorksheetIds: {
+	restaurants: number;
+	visits: number;
+	visitItems: number;
+} | null = null;
+
 export interface Restaurant {
 	rowIndex: number;
 	id: string;
@@ -21,7 +28,20 @@ export interface Visit {
 	id: string;
 	restaurantId: string;
 	dateVisited: string;
-	notes: string | null;
+}
+
+export interface VisitItem {
+	id: string;
+	visitId: string;
+	name: string;
+	review: string;
+	orderAgain: boolean;
+}
+
+export interface VisitItemInput {
+	name: string;
+	review: string;
+	orderAgain: boolean;
 }
 
 export async function getSheetsClient(platform: App.Platform | undefined) {
@@ -45,6 +65,36 @@ export async function getSheetsClient(platform: App.Platform | undefined) {
 	return cachedSheetsClient;
 }
 
+// PERF: Resolve the worksheet IDs required to combine all visit writes into one API request.
+export async function getWorksheetIds(
+	sheets: ReturnType<typeof google.sheets>,
+	spreadsheetId: string | undefined
+) {
+	// PERF: Reuse worksheet IDs for every warm request because tab IDs do not change when rows change.
+	if (cachedWorksheetIds) return cachedWorksheetIds;
+
+	const response = await sheets.spreadsheets.get({
+		spreadsheetId,
+		// PERF: Request only tab titles and IDs rather than downloading spreadsheet data.
+		fields: 'sheets.properties(sheetId,title)'
+	});
+
+	const worksheetIds = new Map(
+		response.data.sheets?.map((sheet) => [sheet.properties?.title, sheet.properties?.sheetId])
+	);
+	const restaurants = worksheetIds.get('Restaurants');
+	const visits = worksheetIds.get('Visits');
+	const visitItems = worksheetIds.get('VisitItems');
+
+	if (restaurants == null || visits == null || visitItems == null) {
+		throw new Error('Required worksheet tabs are missing');
+	}
+
+	// PERF: Store the resolved IDs so subsequent visit requests skip spreadsheet metadata entirely.
+	cachedWorksheetIds = { restaurants, visits, visitItems };
+	return cachedWorksheetIds;
+}
+
 export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 	return rows.map((row: string[], index: number) => ({
 		rowIndex: index + 2,
@@ -61,13 +111,24 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 
 export const RANGE = 'Restaurants!A2:H';
 
+export const VISITS_RANGE = 'Visits!A:C';
+
+export const VISIT_ITEMS_RANGE = 'VisitItems!A:E';
+
 export function rowsToVisits(rows: string[][]): Visit[] {
 	return rows.map((row: string[]) => ({
 		id: row[0] || '',
 		restaurantId: row[1] || '',
-		dateVisited: row[2] || '',
-		notes: row[3] || null
+		dateVisited: row[2] || ''
 	}));
 }
 
-export const VISITS_RANGE = 'Visits!A:D';
+export function rowsToVisitItems(rows: string[][]): VisitItem[] {
+	return rows.map((row) => ({
+		id: row[0] || '',
+		visitId: row[1] || '',
+		name: row[2] || '',
+		review: row[3] || '',
+		orderAgain: row[4]?.toUpperCase() === 'TRUE'
+	}));
+}
