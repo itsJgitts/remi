@@ -100,7 +100,7 @@
 
 			<div class="min-h-64 space-y-4 p-5">
 				<div class="max-w-[85%] rounded-2xl rounded-tl-sm bg-violet-200 px-4 py-3 text-violet-950">
-					<p class="text-sm">Hey! I’ve looked through your restaurants and picked one for you.</p>
+					<p class="text-sm">Remi has looked into the books and found a place to go.</p>
 				</div>
 
 				{#if suggestion}
