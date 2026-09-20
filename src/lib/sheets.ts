@@ -1,7 +1,11 @@
-import { google } from 'googleapis';
+// Import only Sheets so the Worker does not bundle every Google API client.
+import {
+	sheets as createSheets,
+	auth as sheetsAuth
+} from 'googleapis/build/src/apis/sheets/index.js';
 
 let cachedSheetsClient: {
-	sheets: ReturnType<typeof google.sheets>;
+	sheets: ReturnType<typeof createSheets>;
 	sheetId: string | undefined;
 } | null = null;
 
@@ -55,19 +59,19 @@ export async function getSheetsClient(platform: App.Platform | undefined) {
 	);
 	const sheetId = platform?.env?.GOOGLE_SHEET_ID ?? process.env.GOOGLE_SHEET_ID;
 
-	const auth = new google.auth.JWT({
+	const auth = new sheetsAuth.JWT({
 		email,
 		key,
 		scopes: ['https://www.googleapis.com/auth/spreadsheets']
 	});
 
-	cachedSheetsClient = { sheets: google.sheets({ version: 'v4', auth }), sheetId };
+	cachedSheetsClient = { sheets: createSheets({ version: 'v4', auth }), sheetId };
 	return cachedSheetsClient;
 }
 
 // PERF: Resolve the worksheet IDs required to combine all visit writes into one API request.
 export async function getWorksheetIds(
-	sheets: ReturnType<typeof google.sheets>,
+	sheets: ReturnType<typeof createSheets>,
 	spreadsheetId: string | undefined
 ) {
 	// PERF: Reuse worksheet IDs for every warm request because tab IDs do not change when rows change.
