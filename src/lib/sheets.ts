@@ -3,6 +3,7 @@ import {
 	sheets as createSheets,
 	auth as sheetsAuth
 } from 'googleapis/build/src/apis/sheets/index.js';
+import { getGoogleAccessToken } from './google-auth';
 
 let cachedSheetsClient: {
 	sheets: ReturnType<typeof createSheets>;
@@ -59,11 +60,12 @@ export async function getSheetsClient(platform: App.Platform | undefined) {
 	);
 	const sheetId = platform?.env?.GOOGLE_SHEET_ID ?? process.env.GOOGLE_SHEET_ID;
 
-	const auth = new sheetsAuth.JWT({
-		email,
-		key,
-		scopes: ['https://www.googleapis.com/auth/spreadsheets']
-	});
+	if (!email || !key || !sheetId) {
+		throw new Error('Missing Google Sheets credentials or sheet ID');
+	}
+	const auth = new sheetsAuth.OAuth2();
+	// OAuth2 caches the token and calls this handler again before it expires.
+	auth.refreshHandler = () => getGoogleAccessToken(email, key);
 
 	cachedSheetsClient = { sheets: createSheets({ version: 'v4', auth }), sheetId };
 	return cachedSheetsClient;
