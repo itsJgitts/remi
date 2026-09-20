@@ -8,6 +8,7 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		sveltekit({
+			serviceWorker: { register: false },
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
@@ -17,6 +18,10 @@ export default defineConfig({
 		}),
 		SvelteKitPWA({
       registerType: 'autoUpdate',
+      workbox: {
+        // Pages use live server data and are not precached.
+        navigateFallback: null
+      },
       manifest: {
         name: 'Remi',
         short_name: 'Remi',
@@ -26,7 +31,7 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [
-          { src: '/remi.png', sizes: '192x192', type: 'image/png' },
+          { src: '/remi-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/remi.png', sizes: '512x512', type: 'image/png' },
           { src: '/remi.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
