@@ -1,12 +1,12 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getSheetsClient, RANGE, rowsToRestaurants } from '$lib/sheets';
+import { getSheetsClient, RESTAURANT_RANGE, rowsToRestaurants, rowsToVisitItems, rowsToVisits, VISITS_RANGE, VISIT_ITEMS_RANGE } from '$lib/sheets';
 
 export const load: PageServerLoad = async ({ params, platform }) => {
 	const { sheets, sheetId } = await getSheetsClient(platform);
 	const restaurantResponse = await sheets.spreadsheets.values.get({
 		spreadsheetId: sheetId,
-		range: RANGE
+		range: RESTAURANT_RANGE
 	});
 
 	const restaurant = rowsToRestaurants(restaurantResponse.data.values || []).find(
@@ -15,5 +15,27 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	if (!restaurant) error(404, 'Restaurant not found');
 
-	return { restaurant };
+ 	const visitsResponse = await sheets.spreadsheets.values.get({
+  	spreadsheetId: sheetId,
+  	range: VISITS_RANGE
+  	});
+
+  	const visits = rowsToVisits(visitsResponse.data.values || []).filter(
+  	(visit) => visit.restaurantId === params.id
+  	).sort(
+			  	(a, b) => new Date(b.dateVisited).getTime() - new Date(a.dateVisited).getTime()
+  );
+
+  	const visitItemsResponse = await sheets.spreadsheets.values.get({
+  	spreadsheetId: sheetId,
+  	range: VISIT_ITEMS_RANGE
+  	});
+
+  const visitIds = new Set(visits.map((visit) => visit.id));
+
+  const visitItems = rowsToVisitItems(visitItemsResponse.data.values || []).filter(
+  	(item) => visitIds.has(item.visitId)
+  );
+
+  return { restaurant, visits, visitItems };
 };
