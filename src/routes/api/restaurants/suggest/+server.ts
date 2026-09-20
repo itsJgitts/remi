@@ -1,12 +1,12 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { getSheetsClient, rowsToRestaurants, RANGE } from '$lib/sheets.js';
+import { getSheetsClient, rowsToRestaurants, RESTAURANT_RANGE } from '$lib/sheets.js';
 
 export const GET: RequestHandler = async ({ platform }) => {
     try {
         const { sheets, sheetId } = await getSheetsClient(platform);
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range: RANGE
+            range: RESTAURANT_RANGE
         });
         const restaurants = rowsToRestaurants(response.data.values || []);
         const eligible = restaurants.filter((r) => !r.exclude);

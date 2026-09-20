@@ -109,7 +109,7 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 	}));
 }
 
-export const RANGE = 'Restaurants!A2:H';
+export const RESTAURANT_RANGE = 'Restaurants!A2:H';
 
 export const VISITS_RANGE = 'Visits!A:C';
 
