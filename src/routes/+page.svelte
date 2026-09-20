@@ -68,7 +68,7 @@
 				<div class="mb-2 flex items-center gap-2">
 					<span class="text-lg font-semibold">{restaurant.name}</span>
 				</div>
-				<div class="flex items-center gap-3 text-xs text-violet-700">
+				<div class="flex flex-wrap items-center gap-3 text-xs text-violet-700">
 					<span>{restaurant.timesBeen} visits</span>
 					{#if restaurant.rating}
 						<span>{restaurant.rating}/5</span>
@@ -86,7 +86,7 @@
 		{/each}
 		<div class="primary-card hover:primary-card-hover">
 			<input
-				class="focus:border-transaparent w-95 flex-1 border-transparent bg-transparent text-lg font-semibold focus:ring-0 focus:outline-none"
+				class="min-w-0 w-full border-transparent bg-transparent text-lg font-semibold focus:border-transparent focus:ring-0 focus:outline-none"
 				placeholder="Add new Restaurant"
 				bind:value={newRestaurant.name}
 			/>
@@ -111,6 +111,8 @@
 
 <style>
 	.primary-card {
+		min-width: 0;
+		overflow-wrap: anywhere;
 		color: rgb(109 40 217);
 		border-radius: 0.5rem;
 		border-width: 2px;
