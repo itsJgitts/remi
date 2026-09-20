@@ -17,7 +17,7 @@
 				class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none"
 				aria-hidden="true"
 			></span>
-			Remi is checking the books…
+			...Remi is checking the books…
 		</div>
 	{/if}
 </div>
