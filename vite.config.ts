@@ -31,9 +31,9 @@ export default defineConfig({
 				display: 'standalone',
 				start_url: '/',
 				icons: [
-					{ src: '/remi-192.png', sizes: '192x192', type: 'image/png' },
-					{ src: '/remi.png', sizes: '512x512', type: 'image/png' },
-					{ src: '/remi.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+					{ src: '/tiffin-192.png', sizes: '192x192', type: 'image/png' },
+					{ src: '/tiffin.png', sizes: '512x512', type: 'image/png' },
+					{ src: '/tiffin.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
 				]
 			}
 		})

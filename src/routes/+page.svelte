@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
 	import type { Restaurant } from '$lib/sheets';
-	import Remi from '$lib/components/remi.svelte';
+	import Tiffin from '$lib/components/tiffin.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -39,20 +39,6 @@
 		if (!dateStr) return Infinity;
 		return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
 	}
-
-	function remiSays(restaurant: Restaurant): string {
-		if (restaurant.exclude) return "Remi won't suggest this";
-		if (restaurant.status === 'to_try') {
-			const days = daysSince(restaurant.dateAdded);
-			if (days <= 14) return `Remi says the word on the street is to try ${restaurant.name}`;
-			if (days <= 35) return `Remi's been sitting on ${restaurant.name} for a while...`;
-			return `Remi's been waiting a while on ${restaurant.name}...`;
-		}
-		const days = daysSince(restaurant.lastVisited);
-		if (days > 56) return `Remi thinks you've been neglecting ${restaurant.name}`;
-		if (days > 28) return `Remi has fond memories of ${restaurant.name}`;
-		return `Remi keeps thinking about ${restaurant.name}`;
-	}
 </script>
 
 <main class="app-shell">
@@ -78,7 +64,7 @@
 						<span class="meta-pill">Not visited yet</span>
 					{/if}
 					{#if restaurant.exclude}
-						<span class="meta-pill meta-pill--danger">Off the list</span>
+						<span class="meta-pill meta-pill--danger">Out of the Tiffin</span>
 					{/if}
 				</div>
 			</button>
@@ -104,5 +90,5 @@
 			</button>
 		</div>
 	</div>
-	<Remi {restaurants} />
+	<Tiffin {restaurants} />
 </main>

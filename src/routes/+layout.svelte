@@ -3,7 +3,7 @@
 	import { registerSW } from 'virtual:pwa-register';
 	import { navigating } from '$app/state';
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.png';
+	import favicon from '$lib/assets/favicon.svg';
 	import { pwaInfo } from 'virtual:pwa-info';
 
 	let { children } = $props();
@@ -27,7 +27,7 @@
 	{#if navigating.to}
 		<div class="loading-banner">
 			<span class="spinner" aria-hidden="true"></span>
-			. . .Remi is checking the books. . .
+			. . .Packing the Tiffin. . .
 		</div>
 	{/if}
 </div>

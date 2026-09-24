@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import remiImage from '$lib/assets/remi.png';
+	import tiffinImage from '$lib/assets/tiffin.png';
 	import type { Restaurant } from '$lib/sheets';
 
 	type Props = { restaurants: Restaurant[] };
@@ -39,60 +39,63 @@
 		if (suggestion) previousSuggestionId = suggestion.id;
 	}
 
-	function openRemi() {
+	function openTiffin() {
 		chooseSuggestion();
 		open = true;
 	}
 
-	function closeRemi() {
+	function closeTiffin() {
 		open = false;
 	}
 
 	function suggestionMessage(restaurant: Restaurant): string {
 		if (restaurant.status === 'to_try') {
-			return `Remi thinks it's ready to have a crack at ${restaurant.name}`;
+			return `Something new from the Tiffin: ${restaurant.name}.`;
 		}
 
 		const days = daysSince(restaurant.lastVisited);
-		if (!restaurant.lastVisited) return `Remi wants to go to ${restaurant.name}`;
+		if (!restaurant.lastVisited) return `${restaurant.name} is in the Tiffin for tonight.`;
 		if (restaurant.timesBeen >= 5) {
-			return `Remi wants to go back to ${restaurant.name}. Remi has been waiting ${days} days`;
+			return `Back in the Tiffin: ${restaurant.name}. It’s been ${days} days.`;
 		}
-		return `Remi thinks ${restaurant.name} deserves another visit. It’s been ${days} days`;
+		return `From the Tiffin: ${restaurant.name} deserves another visit. It’s been ${days} days.`;
 	}
 </script>
 
-<button type="button" class="remi-trigger" onclick={openRemi} aria-label="Ask Remi where to eat">
-	<img alt="" src={remiImage} />
+<button type="button" class="tiffin-trigger" onclick={openTiffin} aria-label="Open the Tiffin">
+	<img alt="" src={tiffinImage} />
 </button>
 
 {#if open}
 	<div
 		class="modal-backdrop"
 		role="presentation"
-		onclick={(event) => event.target === event.currentTarget && closeRemi()}
+		onclick={(event) => event.target === event.currentTarget && closeTiffin()}
 	>
 		<div
-			class="modal-panel remi-panel"
+			class="modal-panel tiffin-panel"
 			role="dialog"
 			aria-modal="true"
-			aria-labelledby="remi-title"
+			aria-labelledby="tiffin-title"
 		>
-			<header class="remi-panel-header">
-				<div class="remi-avatar">
-					<img alt="" src={remiImage} />
+			<header class="tiffin-panel-header">
+				<div class="tiffin-avatar">
+					<img alt="" src={tiffinImage} />
 				</div>
-				<div class="remi-name">
-					<h2 id="remi-title">Ask Remi</h2>
+				<div class="tiffin-name">
+					<h2 id="tiffin-title">What’s in the Tiffin?</h2>
 				</div>
-				<button type="button" class="icon-button" onclick={closeRemi} aria-label="Close Remi"
-					>×</button
+				<button
+					type="button"
+					class="icon-button"
+					onclick={closeTiffin}
+					aria-label="Close the Tiffin">×</button
 				>
 			</header>
 
 			<div class="chat-body">
 				<div class="chat-bubble chat-bubble--soft">
-					<p class="text-sm">Remi has looked into the books and found a place to go.</p>
+					<p class="text-sm">Let’s open the Tiffin and find somewhere to go.</p>
 				</div>
 
 				{#if suggestion}
@@ -111,14 +114,14 @@
 					</div>
 				{:else}
 					<div class="chat-bubble chat-bubble--soft">
-						<p>I don’t have any eligible restaurants to suggest yet.</p>
+						<p>The Tiffin is empty. Add a few places first.</p>
 					</div>
 				{/if}
 			</div>
 
-			<footer class="remi-footer">
+			<footer class="tiffin-footer">
 				<button type="button" class="button button--secondary" onclick={chooseSuggestion}>
-					Pick another
+					Check another layer
 				</button>
 				{#if suggestion}
 					<button

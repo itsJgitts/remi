@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 
-/* REMI THEME — edit these tokens to restyle the entire app. */
+/* TIFFIN THEME — edit these tokens to restyle the entire app. */
 :root {
 	--font-display: 'Trebuchet MS', 'Avenir Next', Avenir, sans-serif;
 	--font-body:
@@ -446,7 +446,7 @@ button:disabled {
 	margin-top: var(--s6);
 }
 
-.remi-trigger {
+.tiffin-trigger {
 	position: fixed;
 	right: 1.25rem;
 	bottom: 1.25rem;
@@ -463,20 +463,20 @@ button:disabled {
 		transform var(--transition),
 		background var(--transition);
 }
-.remi-trigger:hover {
+.tiffin-trigger:hover {
 	transform: rotate(-4deg) scale(1.06);
 	background: #ffc955;
 }
-.remi-trigger img {
+.tiffin-trigger img {
 	width: 4rem;
 	height: 4rem;
 	object-fit: contain;
 }
-.remi-panel {
+.tiffin-panel {
 	overflow: hidden;
 	padding: 0;
 }
-.remi-panel-header {
+.tiffin-panel-header {
 	display: flex;
 	align-items: center;
 	gap: var(--s3);
@@ -484,7 +484,7 @@ button:disabled {
 	background: var(--turmeric);
 	padding: var(--s4) var(--s5);
 }
-.remi-avatar {
+.tiffin-avatar {
 	display: grid;
 	width: 2.75rem;
 	height: 2.75rem;
@@ -493,17 +493,17 @@ button:disabled {
 	border-radius: 50%;
 	background: var(--paper);
 }
-.remi-avatar img {
+.tiffin-avatar img {
 	width: 2.3rem;
 	height: 2.3rem;
 	object-fit: contain;
 }
-.remi-name {
+.tiffin-name {
 	flex: 1;
 	font-family: var(--font-display);
 	font-weight: 900;
 }
-.remi-name h2 {
+.tiffin-name h2 {
 	margin: 0;
 }
 .icon-button {
@@ -549,14 +549,14 @@ button:disabled {
 	font-size: 0.72rem;
 	font-weight: 800;
 }
-.remi-footer {
+.tiffin-footer {
 	display: flex;
 	gap: var(--s3);
 	border-top: var(--border);
 	background: var(--white);
 	padding: var(--s4);
 }
-.remi-footer .button {
+.tiffin-footer .button {
 	flex: 1;
 }
 
@@ -574,11 +574,11 @@ button:disabled {
 		grid-template-columns: 1fr;
 	}
 	.modal-actions,
-	.remi-footer {
+	.tiffin-footer {
 		flex-direction: column-reverse;
 	}
 	.modal-actions .button,
-	.remi-footer .button {
+	.tiffin-footer .button {
 		width: 100%;
 	}
 }

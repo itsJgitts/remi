@@ -64,7 +64,7 @@
 <main class="app-shell">
 	<a href="/" class="back-link">&larr; All restaurants</a>
 	<section class="detail-hero">
-		<p class="eyebrow">From Remi’s little book</p>
+		<p class="eyebrow">From the Tiffin</p>
 		<h1 class="detail-title">{restaurant.name}</h1>
 
 		<div class="detail-stats">
@@ -83,7 +83,7 @@
 				Mark visited
 			</button>
 			<button class="button button--coral" onclick={toggleExclude} disabled={updating}>
-				{restaurant.exclude ? "Add to Remi's book" : "Remove from Remi's book"}
+				{restaurant.exclude ? 'Add to the Tiffin' : 'Remove from the Tiffin'}
 			</button>
 			<LogVisitModal
 				open={visitModalOpen}
@@ -106,7 +106,7 @@
 						<div>
 							<p><strong>{item.name}</strong></p>
 							<p class="visit-verdict">
-								{item.orderAgain ? 'Remi liked this' : 'Remi would not order this again'}
+								{item.orderAgain ? 'Worth ordering again' : 'Skip this one next time'}
 							</p>
 						</div>
 						{#if item.review}
@@ -114,11 +114,11 @@
 						{/if}
 					</div>
 				{:else}
-					<p class="visit-item">Remi didn’t take notes this time.</p>
+					<p class="visit-item">No dishes were noted for this visit.</p>
 				{/each}
 			</details>
 		{:else}
-			<p>Remi hasn’t been here before.</p>
+			<p>No visits here yet.</p>
 		{/each}
 	</section>
 </main>
