@@ -23,7 +23,6 @@ export interface Restaurant {
 	name: string;
 	lastVisited: string | null;
 	timesBeen: number;
-	rating: number | null;
 	status: string;
 	dateAdded: string | null;
 	exclude: boolean;
@@ -108,14 +107,13 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 		name: row[1] || '',
 		lastVisited: row[2] || null,
 		timesBeen: parseInt(row[3]) || 0,
-		rating: row[4] ? parseInt(row[4]) : null,
-		status: row[5] || 'visited',
-		dateAdded: row[6] || null,
-		exclude: row[7]?.toUpperCase() === 'TRUE'
+		status: row[4] || 'visited',
+		dateAdded: row[5] || null,
+		exclude: row[6]?.toUpperCase() === 'TRUE'
 	}));
 }
 
-export const RESTAURANT_RANGE = 'Restaurants!A2:H';
+export const RESTAURANT_RANGE = 'Restaurants!A2:G';
 
 export const VISITS_RANGE = 'Visits!A:C';
 

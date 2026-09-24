@@ -46,7 +46,7 @@ export const PATCH: RequestHandler = async ({ params, request, platform }) => {
 		const [response, worksheetIds] = await Promise.all([
 			sheets.spreadsheets.values.get({
 				spreadsheetId: sheetId,
-				range: `Restaurants!A${rowIndex}:H${rowIndex}`
+				range: `Restaurants!A${rowIndex}:G${rowIndex}`
 			}),
 			getWorksheetIds(sheets, sheetId)
 		]);
@@ -57,7 +57,7 @@ export const PATCH: RequestHandler = async ({ params, request, platform }) => {
 
 		const restaurantId = restaurant[0];
 		const currentCount = parseInt(restaurant[3] ?? '0') || 0;
-		const currentStatus = restaurant[5] ?? 'visited';
+		const currentStatus = restaurant[4] ?? 'visited';
 
 		// PERF: Convert primitive values once into the CellData format required by a single batch request.
 		const cell = (value: string | number | boolean) => ({
@@ -101,7 +101,7 @@ export const PATCH: RequestHandler = async ({ params, request, platform }) => {
 							start: {
 								sheetId: worksheetIds.restaurants,
 								rowIndex: rowIndex - 1,
-								columnIndex: 5
+								columnIndex: 4
 							},
 							rows: [{ values: [cell('visited')] }],
 							fields: 'userEnteredValue'

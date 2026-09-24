@@ -6,8 +6,7 @@ export const PUT: RequestHandler = async ({ params, request, platform }) => {
 	if (!Number.isInteger(rowIndex) || rowIndex < 2) {
 		return json({ error: 'Invalid row index' }, { status: 400 });
 	}
-	const { rating, status, exclude } = (await request.json()) as {
-		rating?: number;
+	const { status, exclude } = (await request.json()) as {
 		status?: string;
 		exclude?: boolean;
 	};
@@ -15,12 +14,10 @@ export const PUT: RequestHandler = async ({ params, request, platform }) => {
 
 	try {
 		const updates = [];
-		if (rating !== undefined)
-			updates.push({ range: `Restaurants!E${rowIndex}`, values: [[rating]] });
 		if (status !== undefined)
-			updates.push({ range: `Restaurants!F${rowIndex}`, values: [[status]] });
+			updates.push({ range: `Restaurants!E${rowIndex}`, values: [[status]] });
 		if (exclude !== undefined) {
-			updates.push({ range: `Restaurants!H${rowIndex}`, values: [[exclude ? 'TRUE' : 'FALSE']] });
+			updates.push({ range: `Restaurants!G${rowIndex}`, values: [[exclude ? 'TRUE' : 'FALSE']] });
 		}
 
 		if (updates.length > 0) {
