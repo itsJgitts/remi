@@ -55,51 +55,49 @@
 	}
 </script>
 
-<div class="mx-auto max-w-3xl p-4 pb-24 font-sans">
-	<header class="mb-6 flex items-center justify-between">
-		<h1 class="text-3xl font-bold">Remi</h1>
+<main class="app-shell">
+	<header class="app-header">
+		<div>
+			<p class="eyebrow">The little book of good food</p>
+			<h1 class="page-title">Tiffin.</h1>
+			<p class="page-subtitle">
+				Restaurants worth remembering, dishes worth ordering again, and a friendly nudge when it’s
+				time to go back.
+			</p>
+		</div>
 	</header>
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+	<div class="restaurant-grid">
 		{#each restaurants as restaurant (restaurant.id)}
-			<button
-				class="primary-card hover:primary-card-hover"
-				onclick={() => goToRestaurant(restaurant)}
-			>
-				<div class="mb-2 flex items-center gap-2">
-					<span class="text-lg font-semibold">{restaurant.name}</span>
-				</div>
-				<div class="flex flex-wrap items-center gap-3 text-xs text-violet-700">
-					<span>{restaurant.timesBeen} visits</span>
-					{#if restaurant.rating}
-						<span>{restaurant.rating}/5</span>
-					{/if}
+			<button class="restaurant-card" onclick={() => goToRestaurant(restaurant)}>
+				<span class="card-name">{restaurant.name}</span>
+				<div class="card-meta">
+					<span class="meta-pill">{restaurant.timesBeen} visits</span>
 					{#if restaurant.lastVisited}
-						<span>{daysSince(restaurant.lastVisited)}d ago</span>
+						<span class="meta-pill">{daysSince(restaurant.lastVisited)}d ago</span>
 					{:else}
-						<span>Remi hasnt been here</span>
+						<span class="meta-pill">Not visited yet</span>
 					{/if}
 					{#if restaurant.exclude}
-						<span class="text-red-400">No Good</span>
+						<span class="meta-pill meta-pill--danger">Off the list</span>
 					{/if}
 				</div>
 			</button>
 		{/each}
-		<div class="primary-card hover:primary-card-hover">
+		<div class="add-card">
 			<input
-				class="min-w-0 w-full border-transparent bg-transparent text-lg font-semibold focus:border-transparent focus:ring-0 focus:outline-none"
-				placeholder="Add new Restaurant"
+				placeholder="Add a restaurant…"
+				aria-label="Restaurant name"
 				bind:value={newRestaurant.name}
 			/>
 			<button
-				class="p-4 text-right text-2xl transition-all hover:border-blue-400 hover:shadow-md"
+				class="add-button"
+				aria-label="Add restaurant"
 				onclick={() => addRestaurant()}
 				disabled={isAddingRestaurant}
 				onkeydown={(e) => e.key === 'Enter' && addRestaurant()}
 			>
 				{#if isAddingRestaurant}
-					<span
-						class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500"
-					></span>
+					<span class="spinner"></span>
 				{:else}
 					+
 				{/if}
@@ -107,20 +105,4 @@
 		</div>
 	</div>
 	<Remi {restaurants} />
-</div>
-
-<style>
-	.primary-card {
-		min-width: 0;
-		overflow-wrap: anywhere;
-		color: rgb(109 40 217);
-		border-radius: 0.5rem;
-		border-width: 2px;
-		border-style: solid;
-		border-color: transparent;
-		background-color: rgb(221 214 254);
-		padding: 1rem;
-		text-align: left;
-		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-	}
-</style>
+</main>

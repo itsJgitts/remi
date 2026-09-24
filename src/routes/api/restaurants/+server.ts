@@ -33,18 +33,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			valueInputOption: 'RAW',
 			insertDataOption: 'INSERT_ROWS',
 			requestBody: {
-				values: [
-					[
-						crypto.randomUUID(),
-						name.trim(),
-						'',
-						0,
-						'',
-						status || 'visited',
-						today,
-						'FALSE'
-					]
-				]
+				values: [[crypto.randomUUID(), name.trim(), '', 0, status || 'visited', today, 'FALSE']]
 			}
 		});
 		return json({ message: 'Restaurant added successfully' });
