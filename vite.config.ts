@@ -17,25 +17,25 @@ export default defineConfig({
 			adapter: adapter()
 		}),
 		SvelteKitPWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        // Pages use live server data and are not precached.
-        navigateFallback: null
-      },
-      manifest: {
-        name: 'Remi',
-        short_name: 'Remi',
-        description: 'Team lunch tracker',
-        theme_color: '#573c56',
-        background_color: '#ffffff',
-        display: 'standalone',
-        start_url: '/',
-        icons: [
-          { src: '/remi-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/remi.png', sizes: '512x512', type: 'image/png' },
-          { src: '/remi.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      }
-    })
+			registerType: 'autoUpdate',
+			workbox: {
+				// Pages use live server data and are not precached.
+				navigateFallback: null
+			},
+			manifest: {
+				name: 'Tiffin',
+				short_name: 'Tiffin',
+				description: 'Team lunch tracker',
+				theme_color: '#573c56',
+				background_color: '#ffffff',
+				display: 'standalone',
+				start_url: '/',
+				icons: [
+					{ src: '/remi-192.png', sizes: '192x192', type: 'image/png' },
+					{ src: '/remi.png', sizes: '512x512', type: 'image/png' },
+					{ src: '/remi.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+				]
+			}
+		})
 	]
 });
