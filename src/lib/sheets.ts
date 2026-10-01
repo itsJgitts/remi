@@ -10,7 +10,6 @@ let cachedSheetsClient: {
 	sheetId: string | undefined;
 } | null = null;
 
-// PERF: Cache numeric worksheet IDs so batch writes only need a metadata lookup on the first request.
 let cachedWorksheetIds: {
 	restaurants: number;
 	visits: number;
@@ -75,12 +74,10 @@ export async function getWorksheetIds(
 	sheets: ReturnType<typeof createSheets>,
 	spreadsheetId: string | undefined
 ) {
-	// PERF: Reuse worksheet IDs for every warm request because tab IDs do not change when rows change.
 	if (cachedWorksheetIds) return cachedWorksheetIds;
 
 	const response = await sheets.spreadsheets.get({
 		spreadsheetId,
-		// PERF: Request only tab titles and IDs rather than downloading spreadsheet data.
 		fields: 'sheets.properties(sheetId,title)'
 	});
 
@@ -95,7 +92,6 @@ export async function getWorksheetIds(
 		throw new Error('Required worksheet tabs are missing');
 	}
 
-	// PERF: Store the resolved IDs so subsequent visit requests skip spreadsheet metadata entirely.
 	cachedWorksheetIds = { restaurants, visits, visitItems };
 	return cachedWorksheetIds;
 }
