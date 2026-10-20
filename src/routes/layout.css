@@ -54,6 +54,7 @@ body {
 }
 button,
 input,
+select,
 textarea {
 	font: inherit;
 }
@@ -64,6 +65,7 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
+select:focus-visible,
 textarea:focus-visible {
 	outline: 3px solid var(--turmeric);
 	outline-offset: 3px;
@@ -110,6 +112,70 @@ button:disabled {
 	color: var(--ink-soft);
 	font-size: 0.95rem;
 	line-height: 1.5;
+}
+
+.restaurant-controls {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(13rem, auto);
+	gap: var(--s4);
+	margin-bottom: var(--s6);
+}
+.restaurant-controls label {
+	display: grid;
+	gap: var(--s2);
+	color: var(--ink-soft);
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.restaurant-controls input,
+.restaurant-controls select {
+	width: 100%;
+	min-height: 3.25rem;
+	border: var(--border);
+	border-radius: var(--radius-md);
+	background-color: var(--white);
+	box-shadow: var(--shadow-sm);
+	color: var(--ink);
+	font-weight: 800;
+	letter-spacing: normal;
+	text-transform: none;
+	transition:
+		transform var(--transition),
+		box-shadow var(--transition),
+		background-color var(--transition);
+}
+.restaurant-controls input {
+	padding-inline: var(--s4);
+}
+.restaurant-controls input::placeholder {
+	color: rgb(57 97 106 / 68%);
+}
+.restaurant-controls select {
+	cursor: pointer;
+	background-color: var(--paper-deep);
+	padding-left: var(--s4);
+	padding-right: 2.75rem;
+}
+.restaurant-controls input:hover,
+.restaurant-controls select:hover,
+.restaurant-controls input:focus,
+.restaurant-controls select:focus {
+	transform: translate(-2px, -2px);
+	box-shadow: var(--shadow-md);
+}
+.restaurant-controls input:focus {
+	background-color: var(--white);
+}
+.restaurant-controls select:focus {
+	background-color: var(--turmeric);
+}
+
+@media (max-width: 38rem) {
+	.restaurant-controls {
+		grid-template-columns: 1fr;
+	}
 }
 
 .restaurant-grid {
