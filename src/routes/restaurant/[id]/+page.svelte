@@ -74,6 +74,8 @@
 			{/if}
 		</div>
 
+
+
 		<div class="action-row">
 			<button
 				class="button button--primary"
@@ -92,6 +94,11 @@
 				onsubmit={markVisited}
 			/>
 		</div>
+			{#if restaurant.agentSummary}
+		<div class="detail-stats">
+		<p class="detail-stat">{restaurant.agentSummary}</p>
+		</div>
+		{/if}
 	</section>
 	<section class="visit-list">
 		<h2 class="section-title">Past visits</h2>

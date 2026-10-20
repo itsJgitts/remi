@@ -24,7 +24,8 @@ export interface Restaurant {
 	timesBeen: number;
 	status: string;
 	dateAdded: string | null;
-	exclude: boolean;
+  exclude: boolean;
+  agentSummary: string | null;
 }
 
 export interface Visit {
@@ -105,11 +106,12 @@ export function rowsToRestaurants(rows: string[][]): Restaurant[] {
 		timesBeen: parseInt(row[3]) || 0,
 		status: row[4] || 'visited',
 		dateAdded: row[5] || null,
-		exclude: row[6]?.toUpperCase() === 'TRUE'
+    exclude: row[6]?.toUpperCase() === 'TRUE',
+		agentSummary: row[7] || null
 	}));
 }
 
-export const RESTAURANT_RANGE = 'Restaurants!A2:G';
+export const RESTAURANT_RANGE = 'Restaurants!A2:H';
 
 export const VISITS_RANGE = 'Visits!A:C';
 
