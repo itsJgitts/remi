@@ -85,7 +85,7 @@
 	<header class="app-header">
 		<div>
 			<p class="eyebrow">The little book of good food</p>
-			<h1 class="page-title">Tiffin.</h1>
+			<h1 class="page-title">Tiffin. Hi</h1>
 			<p class="page-subtitle">
 				Restaurants worth remembering, dishes worth ordering again, and a friendly nudge when it’s
 				time to go back.
